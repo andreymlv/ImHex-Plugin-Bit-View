@@ -2,6 +2,8 @@
 
 A plugin for [ImHex](https://github.com/WerWolv/ImHex) that visualizes binary data as a grid of colored cells — one cell per bit.
 
+![Bit Viewer screenshot](https://github.com/user-attachments/assets/7c8827fc-3d2c-41ad-9526-afa7dfaa57d7)
+
 ## Features
 
 - **Bit grid visualization** — each bit rendered as a colored rectangle
