@@ -26,9 +26,16 @@ jobs:
           apt install -y git
 
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           submodules: recursive
+
+      - name: Setup ccache
+        uses: hendrikmuhs/ccache-action@v1
+        with:
+          key: linux-x86_64-ccache-${{ github.run_id }}
+          restore-keys: linux-x86_64-ccache
+          max-size: 1G
 
       - name: Install dependencies
         run: |
@@ -49,7 +56,7 @@ jobs:
         run: cmake --build build --target bit_view -j$(nproc)
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: bit_view-linux-x86_64
           path: build/bit_view.hexplug
@@ -63,11 +70,21 @@ jobs:
       run:
         shell: msys2 {0}
 
+    env:
+      CCACHE_DIR: "${{ github.workspace }}/.ccache"
+
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           submodules: recursive
+
+      - name: Setup ccache
+        uses: hendrikmuhs/ccache-action@main
+        with:
+          key: windows-mingw-ccache-${{ github.run_id }}
+          restore-keys: windows-mingw-ccache
+          max-size: 1G
 
       - name: Install MSYS2
         uses: msys2/setup-msys2@v2
@@ -80,7 +97,7 @@ jobs:
           bash ImHex/dist/get_deps_msys2.sh
 
       - name: Install .NET
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v5
         with:
           dotnet-version: '8.0.100'
 
@@ -89,6 +106,8 @@ jobs:
           mkdir -p build && cd build
           cmake -G Ninja \
             -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} \
+            -DCMAKE_C_COMPILER_LAUNCHER=ccache \
+            -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
             -DDOTNET_EXECUTABLE="dotnet" \
             ..
 
@@ -96,7 +115,7 @@ jobs:
         run: cmake --build build --target bit_view -j$(nproc)
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: bit_view-windows-x86_64
           path: build/bit_view.hexplug
@@ -112,13 +131,13 @@ jobs:
 
     steps:
       - name: Download Linux artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v6
         with:
           name: bit_view-linux-x86_64
           path: linux
 
       - name: Download Windows artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v6
         with:
           name: bit_view-windows-x86_64
           path: windows
