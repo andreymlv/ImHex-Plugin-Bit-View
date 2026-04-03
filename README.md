@@ -20,7 +20,7 @@ A plugin for [ImHex](https://github.com/WerWolv/ImHex) that visualizes binary da
 1. Download `bit_view-linux-x86_64.hexplug` or `bit_view-windows-x86_64.hexplug` from [Releases](https://github.com/andreymlv/ImHex-Plugin-Bit-View/releases)
 2. Copy the `.hexplug` file to your ImHex plugins directory:
    - **Linux:** `~/.local/share/imhex/plugins/`
-   - **Windows:** `%APPDATA%/imhex/plugins/`
+   - **Windows:** `%LocalAppData%/imhex/plugins/`
    - **macOS:** `~/Library/Application Support/imhex/plugins/`
 3. Restart ImHex
 4. Open **View → Bit Viewer**
