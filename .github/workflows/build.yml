@@ -1,0 +1,132 @@
+name: Build
+
+on:
+  push:
+    branches: [master]
+    tags: ['v*']
+  pull_request:
+  workflow_dispatch:
+
+env:
+  BUILD_TYPE: Release
+  IMHEX_VERSION: "1.38.1"
+
+jobs:
+  linux:
+    name: Linux x86_64
+    runs-on: ubuntu-24.04
+    container:
+      image: ubuntu:24.04
+      options: --privileged
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install dependencies
+        run: |
+          apt update
+          bash ImHex/dist/get_deps_debian.sh
+
+      - name: Configure
+        run: |
+          git config --global --add safe.directory '*'
+          mkdir -p build && cd build
+          CC=gcc-14 CXX=g++-14 cmake -G Ninja \
+            -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} \
+            -DCMAKE_C_COMPILER_LAUNCHER=ccache \
+            -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
+            ..
+
+      - name: Build
+        run: cmake --build build --target bit_view -j$(nproc)
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: bit_view-linux-x86_64
+          path: build/bit_view.hexplug
+          if-no-files-found: error
+
+  windows:
+    name: Windows x86_64
+    runs-on: windows-2025
+
+    defaults:
+      run:
+        shell: msys2 {0}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install MSYS2
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: mingw64
+
+      - name: Install dependencies
+        run: |
+          set -x
+          bash ImHex/dist/get_deps_msys2.sh
+
+      - name: Install .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.100'
+
+      - name: Configure
+        run: |
+          mkdir -p build && cd build
+          cmake -G Ninja \
+            -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} \
+            -DDOTNET_EXECUTABLE="dotnet" \
+            ..
+
+      - name: Build
+        run: cmake --build build --target bit_view -j$(nproc)
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: bit_view-windows-x86_64
+          path: build/bit_view.hexplug
+          if-no-files-found: error
+
+  release:
+    name: Create Release
+    needs: [linux, windows]
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Download Linux artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: bit_view-linux-x86_64
+          path: linux
+
+      - name: Download Windows artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: bit_view-windows-x86_64
+          path: windows
+
+      - name: Rename artifacts
+        run: |
+          mv linux/bit_view.hexplug bit_view-linux-x86_64.hexplug
+          mv windows/bit_view.hexplug bit_view-windows-x86_64.hexplug
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
+          files: |
+            bit_view-linux-x86_64.hexplug
+            bit_view-windows-x86_64.hexplug

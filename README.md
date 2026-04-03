@@ -1,13 +1,63 @@
-# ImHex C++ Plugin Template
+# Bit View — ImHex Plugin
 
-This repository is a template repository for building plugins for ImHex in C++.
+A plugin for [ImHex](https://github.com/WerWolv/ImHex) that visualizes binary data as a grid of colored cells — one cell per bit.
 
-## Building
+![bit-viewer-screenshot](https://github.com/user-attachments/assets/placeholder)
 
-Building a plugin works similarly to building ImHex. Make sure you have all dependencies installed that are necessary to build ImHex itself. Afterwards simply use cmake in the top level of this repository to build libimhex and the plugin. Consult the ImHex README.md for a more in-depth guide on how to compile ImHex using cmake.
+## Features
 
-## Notice
+- **Bit grid visualization** — each bit rendered as a colored rectangle
+- **Virtual scrolling** — only visible data is read and rendered, handles files of any size
+- **Configurable display** — pixel size, cell gap, bit colors
+- **Fit to width** — auto-calculate bits per row, or set manually with math expressions (`1024 * 8`)
+- **MSB/LSB toggle** — switch bit order per byte
+- **Hex Editor sync** — click a bit to select the byte in the Hex Editor; selecting in the Hex Editor highlights and scrolls the Bit Viewer
 
-Plugins can depend on the ImHex version you're using. To find out what commit the plugin was built for, check the commit hash next to the ImHex submodule.
+## Installation
 
-![image](https://user-images.githubusercontent.com/10835354/144566767-31c39e72-2d08-42b1-a38b-dcba44939ac9.png)
+### From GitHub Releases
+
+1. Download `bit_view-linux-x86_64.hexplug` or `bit_view-windows-x86_64.hexplug` from [Releases](https://github.com/andreymlv/ImHex-Plugin-Bit-View/releases)
+2. Copy the `.hexplug` file to your ImHex plugins directory:
+   - **Linux:** `~/.local/share/imhex/plugins/`
+   - **Windows:** `%APPDATA%/imhex/plugins/`
+   - **macOS:** `~/Library/Application Support/imhex/plugins/`
+3. Restart ImHex
+4. Open **View → Bit Viewer**
+
+### Building from source
+
+#### Prerequisites
+
+All dependencies required to build ImHex itself. See [ImHex INSTALL.md](https://github.com/WerWolv/ImHex/blob/master/INSTALL.md) for your platform.
+
+#### Build
+
+```bash
+git clone --recursive https://github.com/andreymlv/ImHex-Plugin-Bit-View.git
+cd ImHex-Plugin-Bit-View
+cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
+cmake --build build --target bit_view -j$(nproc)
+```
+
+The plugin is at `build/bit_view.hexplug`. Copy it to your ImHex plugins directory.
+
+#### Updating ImHex version
+
+The plugin is built against a specific ImHex version (pinned as a git submodule). To update:
+
+```bash
+cd ImHex
+git fetch --tags
+git checkout v1.XX.X   # desired version
+cd ..
+# Update IMHEX_VERSION in CMakeLists.txt to match
+```
+
+## Compatibility
+
+Built for ImHex **v1.38.1**. Plugin ABI may change between ImHex versions — use the matching version.
+
+## License
+
+GPLv2 — see [LICENSE.md](LICENSE.md)
