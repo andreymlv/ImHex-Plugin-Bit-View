@@ -1,0 +1,20 @@
+{
+    "hex.bitview.view.name": "Просмотр битов",
+    "hex.bitview.view.help": "Визуализирует двоичные данные в виде сетки цветных ячеек — одна ячейка на бит. Нажмите на бит, чтобы выбрать соответствующий байт в Hex-редакторе.",
+    "hex.bitview.view.no_data": "Нет данных",
+    "hex.bitview.settings.header": "Параметры ячеек",
+    "hex.bitview.settings.bits_per_row": "Бит в строке",
+    "hex.bitview.settings.fit_to_width": "По ширине",
+    "hex.bitview.settings.pixel_size": "Размер пикселя",
+    "hex.bitview.settings.cell_gap": "Зазор ячеек",
+    "hex.bitview.settings.bit_order": "Порядок бит",
+    "hex.bitview.settings.bit_order.msb": "Старший бит первый (7 6 5 4 3 2 1 0)",
+    "hex.bitview.settings.bit_order.lsb": "Младший бит первый (0 1 2 3 4 5 6 7)",
+    "hex.bitview.settings.colors": "Цвета",
+    "hex.bitview.settings.math_hint": "Поддерживает выражения: 1024 * 4, 8 * 3 + 1 и т.д.",
+    "hex.bitview.settings.math_error": "Неверное выражение",
+    "hex.bitview.tooltip.byte": "Байт: 0x{0:X}",
+    "hex.bitview.tooltip.bit_msb": "Бит: {0} (старший первый)",
+    "hex.bitview.tooltip.bit_lsb": "Бит: {0} (младший первый)",
+    "hex.bitview.tooltip.value": "Значение: {0}"
+}

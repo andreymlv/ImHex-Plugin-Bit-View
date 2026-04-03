@@ -1,0 +1,20 @@
+{
+    "hex.bitview.view.name": "Bit Viewer",
+    "hex.bitview.view.help": "Visualizes binary data as a grid of colored cells — one cell per bit. Click on a bit to select the corresponding byte in the Hex Editor.",
+    "hex.bitview.view.no_data": "No data available",
+    "hex.bitview.settings.header": "Data Cell Options",
+    "hex.bitview.settings.bits_per_row": "Bits per row",
+    "hex.bitview.settings.fit_to_width": "Fit to width",
+    "hex.bitview.settings.pixel_size": "Pixel size",
+    "hex.bitview.settings.cell_gap": "Cell gap",
+    "hex.bitview.settings.bit_order": "Bit order",
+    "hex.bitview.settings.bit_order.msb": "MSB first (7 6 5 4 3 2 1 0)",
+    "hex.bitview.settings.bit_order.lsb": "LSB first (0 1 2 3 4 5 6 7)",
+    "hex.bitview.settings.colors": "Colors",
+    "hex.bitview.settings.math_hint": "Supports math: 1024 * 4, 8 * 3 + 1, etc.",
+    "hex.bitview.settings.math_error": "Invalid expression",
+    "hex.bitview.tooltip.byte": "Byte: 0x{0:X}",
+    "hex.bitview.tooltip.bit_msb": "Bit: {0} (MSB first)",
+    "hex.bitview.tooltip.bit_lsb": "Bit: {0} (LSB first)",
+    "hex.bitview.tooltip.value": "Value: {0}"
+}

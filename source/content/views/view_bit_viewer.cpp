@@ -3,6 +3,7 @@
 #include <hex/api/imhex_api/hex_editor.hpp>
 #include <hex/api/imhex_api/provider.hpp>
 #include <hex/api/events/events_interaction.hpp>
+#include <hex/api/localization_manager.hpp>
 #include <hex/providers/provider.hpp>
 #include <hex/ui/imgui_imhex_extensions.h>
 
@@ -13,7 +14,7 @@
 
 namespace hex::plugin::bitview {
 
-    ViewBitViewer::ViewBitViewer() : View::Window("Bit Viewer", ICON_VS_SYMBOL_ARRAY) {
+    ViewBitViewer::ViewBitViewer() : View::Window("hex.bitview.view.name", ICON_VS_SYMBOL_ARRAY) {
         EventRegionSelected::subscribe(this, [this](const ImHexApi::HexEditor::ProviderRegion &providerRegion) {
             auto region = providerRegion.getRegion();
             if (region == Region::Invalid())
@@ -30,16 +31,13 @@ namespace hex::plugin::bitview {
     }
 
     void ViewBitViewer::drawHelpText() {
-        ImGui::TextWrapped(
-            "Visualizes binary data as a grid of colored cells — one cell per bit. "
-            "Click on a bit to select the corresponding byte in the Hex Editor."
-        );
+        ImGuiExt::TextFormattedWrapped("{}", "hex.bitview.view.help"_lang);
     }
 
     void ViewBitViewer::drawContent() {
         auto provider = ImHexApi::Provider::get();
         if (provider == nullptr || !provider->isReadable() || provider->getActualSize() == 0) {
-            ImGui::TextDisabled("No data available");
+            ImGuiExt::TextFormattedDisabled("{}", "hex.bitview.view.no_data"_lang);
             return;
         }
 
@@ -49,15 +47,15 @@ namespace hex::plugin::bitview {
     }
 
     void ViewBitViewer::drawSettings() {
-        if (!ImGui::CollapsingHeader("Data Cell Options", ImGuiTreeNodeFlags_DefaultOpen))
+        if (!ImGui::CollapsingHeader("hex.bitview.settings.header"_lang, ImGuiTreeNodeFlags_DefaultOpen))
             return;
 
         const float labelWidth = 120_scaled;
 
         ImGui::AlignTextToFramePadding();
-        ImGui::TextUnformatted("Bits per row");
+        ImGui::TextUnformatted("hex.bitview.settings.bits_per_row"_lang);
         ImGui::SameLine(labelWidth);
-        ImGui::Checkbox("Fit to width", &m_fitToWidth);
+        ImGui::Checkbox("hex.bitview.settings.fit_to_width"_lang, &m_fitToWidth);
 
         if (!m_fitToWidth) {
             ImGui::SetCursorPosX(labelWidth);
@@ -69,18 +67,18 @@ namespace hex::plugin::bitview {
             }
             if (ImGui::IsItemHovered()) {
                 ImGui::BeginTooltip();
-                ImGui::TextUnformatted("Supports math: 1024 * 4, 8 * 3 + 1, etc.");
+                ImGui::TextUnformatted("hex.bitview.settings.math_hint"_lang);
                 if (m_lastEvalResult.has_value())
                     ImGuiExt::TextFormatted("= {} bits", m_bitsPerRow);
                 else
-                    ImGui::TextColored(ImVec4(1, 0.4f, 0.4f, 1), "Invalid expression");
+                    ImGui::TextColored(ImVec4(1, 0.4f, 0.4f, 1), "%s", static_cast<const char *>("hex.bitview.settings.math_error"_lang));
                 ImGui::EndTooltip();
             }
             ImGui::PopItemWidth();
         }
 
         ImGui::AlignTextToFramePadding();
-        ImGui::TextUnformatted("Pixel size");
+        ImGui::TextUnformatted("hex.bitview.settings.pixel_size"_lang);
         ImGui::SameLine(labelWidth);
         ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x);
         ImGui::SliderInt("##pixelsize", &m_pixelSize, 1, 32);
@@ -88,7 +86,7 @@ namespace hex::plugin::bitview {
         ImGui::PopItemWidth();
 
         ImGui::AlignTextToFramePadding();
-        ImGui::TextUnformatted("Cell gap");
+        ImGui::TextUnformatted("hex.bitview.settings.cell_gap"_lang);
         ImGui::SameLine(labelWidth);
         ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x);
         ImGui::SliderInt("##cellgap", &m_cellGap, 0, 4);
@@ -96,17 +94,19 @@ namespace hex::plugin::bitview {
         ImGui::PopItemWidth();
 
         ImGui::AlignTextToFramePadding();
-        ImGui::TextUnformatted("Bit order");
+        ImGui::TextUnformatted("hex.bitview.settings.bit_order"_lang);
         ImGui::SameLine(labelWidth);
         ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x);
-        const char *bitOrderItems[] = { "MSB first (7 6 5 4 3 2 1 0)", "LSB first (0 1 2 3 4 5 6 7)" };
+        const std::string msbLabel = "hex.bitview.settings.bit_order.msb"_lang;
+        const std::string lsbLabel = "hex.bitview.settings.bit_order.lsb"_lang;
+        const char *bitOrderItems[] = { msbLabel.c_str(), lsbLabel.c_str() };
         int bitOrderIdx = static_cast<int>(m_bitOrder);
         if (ImGui::Combo("##bitorder", &bitOrderIdx, bitOrderItems, 2))
             m_bitOrder = static_cast<BitOrder>(bitOrderIdx);
         ImGui::PopItemWidth();
 
         ImGui::AlignTextToFramePadding();
-        ImGui::TextUnformatted("Colors");
+        ImGui::TextUnformatted("hex.bitview.settings.colors"_lang);
         ImGui::SameLine(labelWidth);
         ImGui::ColorEdit4("0 bit##col0", &m_colorZero.x, ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel);
         ImGui::SameLine();
@@ -149,7 +149,6 @@ namespace hex::plugin::bitview {
             return;
         }
 
-        // Scroll to hex editor selection
         if (m_shouldScrollToSelection && m_selectedRegion.has_value()) {
             const u64 selBit = (m_selectedRegion->getStartAddress() - baseAddress) * 8;
             const float targetY = static_cast<float>(selBit / bitsPerRow) * cellStride;
@@ -174,7 +173,6 @@ namespace hex::plugin::bitview {
             return;
         }
 
-        // Read only visible bytes, reusing buffer to avoid per-frame allocation
         m_readBuffer.resize(lastByte - firstByte);
         provider->read(baseAddress + firstByte, m_readBuffer.data(), m_readBuffer.size());
 
@@ -194,7 +192,6 @@ namespace hex::plugin::bitview {
             selEnd = selStart + m_selectedRegion->getSize();
         }
 
-        // O(1) hover detection: compute hovered cell from mouse position
         const ImVec2 mousePos = ImGui::GetMousePos();
         const bool mouseInWindow = ImGui::IsWindowHovered();
         i64 hoveredCol = -1;
@@ -205,7 +202,6 @@ namespace hex::plugin::bitview {
             const float localY = mousePos.y - origin.y;
             const i64 col = static_cast<i64>(localX / cellStride);
             const u64 row = static_cast<u64>(localY / cellStride);
-            // Check that mouse is on the cell, not in the gap
             const float fracX = localX - col * cellStride;
             const float fracY = localY - row * cellStride;
             if (col >= 0 && col < bitsPerRow &&
@@ -220,7 +216,6 @@ namespace hex::plugin::bitview {
             }
         }
 
-        // Render visible cells
         for (u64 row = firstRow; row < lastRow; row++) {
             const float y = origin.y + row * cellStride;
             const u64 rowBitStart = row * bitsPerRow;
@@ -245,7 +240,6 @@ namespace hex::plugin::bitview {
             }
         }
 
-        // Draw hover highlight and tooltip outside the render loop
         if (hoveredCol >= 0) {
             const u64 bitIdx = hoveredRow * bitsPerRow + hoveredCol;
             const u64 byteIdx = bitIdx / 8;
@@ -262,9 +256,12 @@ namespace hex::plugin::bitview {
             drawList->AddRect(cellMin, cellMax, colHover, 0.0f, 0, 2.0f);
 
             ImGui::BeginTooltip();
-            ImGuiExt::TextFormatted("Byte: 0x{:X}", byteIdx);
-            ImGuiExt::TextFormatted("Bit: {} ({})", bitPos, msbFirst ? "MSB first" : "LSB first");
-            ImGuiExt::TextFormatted("Value: {}", val ? 1 : 0);
+            ImGuiExt::TextFormatted("hex.bitview.tooltip.byte"_lang, byteIdx);
+            if (msbFirst)
+                ImGuiExt::TextFormatted("hex.bitview.tooltip.bit_msb"_lang, bitPos);
+            else
+                ImGuiExt::TextFormatted("hex.bitview.tooltip.bit_lsb"_lang, bitPos);
+            ImGuiExt::TextFormatted("hex.bitview.tooltip.value"_lang, val ? 1 : 0);
             ImGui::EndTooltip();
 
             if (ImGui::IsMouseClicked(ImGuiMouseButton_Left))

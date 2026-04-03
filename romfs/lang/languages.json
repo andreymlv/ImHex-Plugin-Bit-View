@@ -1,0 +1,11 @@
+[
+    {
+        "code": "en-US",
+        "path": "lang/en_US.json"
+    },
+    {
+        "code": "ru-RU",
+        "path": "lang/ru_RU.json",
+        "fallback": "en-US"
+    }
+]
