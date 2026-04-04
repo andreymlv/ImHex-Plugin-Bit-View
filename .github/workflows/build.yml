@@ -131,13 +131,13 @@ jobs:
 
     steps:
       - name: Download Linux artifact
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v8
         with:
           name: bit_view-linux-x86_64
           path: linux
 
       - name: Download Windows artifact
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v8
         with:
           name: bit_view-windows-x86_64
           path: windows
