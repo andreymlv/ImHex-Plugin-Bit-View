@@ -7,11 +7,12 @@ A plugin for [ImHex](https://github.com/WerWolv/ImHex) that visualizes binary da
 ## Features
 
 - **Bit grid visualization** — each bit rendered as a colored rectangle
-- **Virtual scrolling** — only visible data is read and rendered, handles files of any size
-- **Configurable display** — pixel size, cell gap, bit colors
-- **Fit to width** — auto-calculate bits per row, or set manually with math expressions (`1024 * 8`)
-- **MSB/LSB toggle** — switch bit order per byte
-- **Hex Editor sync** — click a bit to select the byte in the Hex Editor; selecting in the Hex Editor highlights and scrolls the Bit Viewer
+- **Virtual scrolling** — only visible bits are read and rendered, handles files of any size (tested with 20 GB+)
+- **Keyboard navigation** — arrow keys to move the cursor through bits, with edge-scrolling
+- **Selection** — shift+arrow keys or mouse drag to select ranges of bits; Escape to collapse or clear
+- **Configurable display** — pixel size, bit colors, MSB/LSB bit order
+- **Flexible row width** — fit to window width, or set manually with math expressions (`1024 * 8`)
+- **Hex Editor sync** — click a bit to select the byte in the Hex Editor; selecting in the Hex Editor scrolls and highlights in the Bit Viewer
 
 ## Installation
 
